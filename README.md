@@ -1,26 +1,39 @@
-# Vagrant_linux_networking
+# Vagrant Linux Networking
 ## Task conditions
-1) Run three virtual machines with the Ubuntu OS using Vagrant.
-2) Each machine must have two network interfaces with static addresses from defined networks.
+### Goal
+The goal of this project is to set up a network configuration with three Ubuntu virtual machines (VMs) using Vagrant. Each VM will have specific network interfaces and configurations.
 
-VM A
-172.16.0.0/24 (your local network)
-192.168.100.0/24
-Internet access
-Nginx proxy for WordPress
+### VM A
+- IP Addresses:
+  - 172.16.0.0/24 (your local network)
+  - 192.168.100.0/24
+- Purpose:
+  - Internet access
+  - Nginx proxy for WordPress
 
-VM B
-192.168.101.0/24
-192.168.100.0/24
-No Intenet access
-Mysql on 101 network
+### VM B
+- IP Addresses:
+  - 192.168.101.0/24
+  - 192.168.100.0/24
+- Purpose:
+  - No Intenet access
+  - Mysql on 101 network
 
-VM C
-192.168.100.0/24
-192.168.102.0/24
-Internet access
-Apache with WordPress 102 network
+### VM C
+- IP Addresses:
+  - 192.168.100.0/24
+  - 192.168.102.0/24
+- Purpose:
+  - Internet access
+  - Apache with WordPress 102 network
 
-3) Fulfill the following conditions for virtual machines
-You can curl WordPress by mysyte.local (added to /etc/hosts)
-from IP in 172.16.0.0/24 (your local PC) network
+## Insctructions
+
+### Prerequisites
+- Install [Vagrant](https://www.vagrantup.com/) on your local machine.
+### Getting Started
+1. Clone this repository to your local machine.
+2. Change directory to the cloned repository to Vagrant_linux_networking
+3. ```
+   vagrant up
+   ```
