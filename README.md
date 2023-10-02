@@ -37,3 +37,21 @@ The goal of this project is to set up a network configuration with three Ubuntu 
 3. ```
    vagrant up
    ```
+### Configuration files
+- Netplan configurations
+  - For Virtual machine R (this is "router")
+```
+  ---
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp0s8:
+      addresses:
+      - 172.16.0.1/24
+    enp0s9:
+      dhcp4: true  
+```
+  - For Virtual Machine A
+  - For Virtual Machine B
+  - For Virtual Machine C
