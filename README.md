@@ -20,6 +20,7 @@ VM C
 192.168.102.0/24
 Internet access
 Apache with WordPress 102 network
-4) Fulfill the following conditions for virtual machines
+
+3) Fulfill the following conditions for virtual machines
 You can curl WordPress by mysyte.local (added to /etc/hosts)
 from IP in 172.16.0.0/24 (your local PC) network
