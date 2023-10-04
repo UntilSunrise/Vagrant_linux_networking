@@ -60,7 +60,7 @@ The goal of this project is to set up a network configuration with three Ubuntu 
    sudo touch mysite
    sudo vi mysite
    ```
-   Add this server settings to conf file
+   - Add this server settings to conf file
    ```
    server {
             listen 80;
@@ -76,13 +76,78 @@ The goal of this project is to set up a network configuration with three Ubuntu 
             }
    }
    ```
-   Check nginx conf and use next steps
+   - Check nginx conf and use next steps
    ```
    sudo ln -s /etc/nginx/sites-available/mysite /etc/nginx/sites-enabled/
    sudo nginx -t
    sudo systemctl reload nginx
    ```
-7. 
+6. Go to machine B and exec commands:
+   - This need for activate packet routing and del default options from routing tables:
+   ```
+   echo 1 | sudo tee /proc/sys/net/ipv4/ip_forward
+   sudo ip route del default via 10.0.2.2
+   ping 8.8.8.8
+   ```
+   If you have ping it's not configured correctly
+   - Install mysql and create db with user for WP:
+   ```
+   cp /vagrant/mysql.deb ~/
+   sudo DEBIAN_FRONTEND=noninteractive dpkg -i ~/mysql.deb
+   sudo apt-get install -y -f
+   rm ~/mysql.deb
+   sudo apt-get update
+   sudo apt-get install -y mysql-server
+    
+   sudo mysql -e "CREATE DATABASE wordpress DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;"
+   sudo mysql -e "CREATE USER 'wordpress_user'@'%' IDENTIFIED WITH mysql_native_password BY 'your_password';"
+   sudo mysql -e "GRANT ALL ON wordpress.* TO 'wordpress_user'@'%';"
+   sudo mysql -e "FLUSH PRIVILEGES;"
+   ```
+7. Go to machine C and exec commadns:
+   - This need for activate packet routing and del default options from routing tables:
+   ```
+   echo 1 | sudo tee /proc/sys/net/ipv4/ip_forward
+   sudo ip route del default via 10.0.2.2
+   ping 8.8.8.8
+   ```
+   - Setting up apache and WP:
+   ```
+   sudo apt-get update
+   sudo apt-get install -y apache2
+   sudo service apache2 start
+   sudo apt-get install -y php libapache2-mod-php
+   sudo apt-get install -y php-mysql
+   sudo systemctl restart apache2
+   sudo apt-get install -y curl
+   echo "127.0.0.1 mysite.local" | sudo tee -a /etc/hosts
+   sudo curl -O https://wordpress.org/latest.tar.gz
+   sudo tar xzvf latest.tar.gz
+   sudo cp -r wordpress/* /var/www/html/
+   sudo chown -R www-data:www-data /var/www/html/
+   sudo chmod -R 755 /var/www/html/
+   sudo cp wp-config-sample.php wp-config-sample.php.backup
+   ```
+   Than you need write correctly the registration files associated with the database settings and its credentials:
+   ```
+   sudo vi wp-config-sample.php
+   ```
+   And change this:
+   ```
+   // ** Database settings - You can get this info from your web host ** //
+   /** The name of the database for WordPress */
+   define( 'DB_NAME', 'wordpress' );
+
+   /** Database username */
+   define( 'DB_USER', 'wordpress_user' );
+
+   /** Database password */
+   define( 'DB_PASSWORD', 'your_password' );
+
+   /** Database hostname */
+   define( 'DB_HOST', '192.168.100.2' );
+   ```
+8. Congratulations. Done!
 ### Configuration files
 - Netplan configurations
   - For Virtual machine R (this is "router")
