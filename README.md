@@ -164,12 +164,84 @@ network:
     enp0s9:
       dhcp4: true  
 ```
-    - ip route show:
-    ```
-    
-    ```
+  - ip route show:
+```
+default via 10.0.2.2 dev enp0s3 proto dhcp src 10.0.2.15 metric 100
+default via 192.168.88.1 dev enp0s9 proto dhcp src 192.168.88.208 metric 100
+10.0.2.0/24 dev enp0s3 proto kernel scope link src 10.0.2.15
+10.0.2.2 dev enp0s3 proto dhcp scope link src 10.0.2.15 metric 100
+172.16.0.0/24 dev enp0s8 proto kernel scope link src 172.16.0.1
+192.168.88.0/24 dev enp0s9 proto kernel scope link src 192.168.88.208
+192.168.88.1 dev enp0s9 proto dhcp scope link src 192.168.88.208 metric 100
+192.168.100.0/24 via 172.16.0.2 dev enp0s8
+192.168.101.0/24 via 172.16.0.2 dev enp0s8
+192.168.102.0/24 via 172.16.0.2 dev enp0s8
+```
   - For Virtual Machine A
+    - netplan machine A
+```
+---
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp0s8:
+      addresses:
+      - 172.16.0.2/24
+    enp0s9:
+      addresses:
+      - 192.168.100.1/24
+```
+   - ip route show:
+```
+default via 172.16.0.1 dev enp0s8
+10.0.2.0/24 dev enp0s3 proto kernel scope link src 10.0.2.15
+10.0.2.2 dev enp0s3 proto dhcp scope link src 10.0.2.15 metric 100
+172.16.0.0/24 dev enp0s8 proto kernel scope link src 172.16.0.2
+192.168.100.0/24 dev enp0s9 proto kernel scope link src 192.168.100.1
+192.168.101.0/24 via 192.168.100.2 dev enp0s9
+192.168.102.0/24 via 192.168.100.3 dev enp0s9
+```
+   - nignx config A:
+```
+server {
+         listen 80;
+         server_name mysite.local;
+         access_log /var/log/nginx/mysite-access.log;
+         error_log /var/log/nginx/mysite-error.log;
+
+         location / {
+             proxy_pass http://192.168.100.3;
+             proxy_set_header Host $host;
+             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+             proxy_set_header X-Real-IP $remote_addr;
+         }
+}
+```
   - For Virtual Machine B
+    - netplan config B:
+```
+---
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp0s8:
+      addresses:
+      - 192.168.100.2/24
+    enp0s9:
+      addresses:
+      - 192.168.101.1/24
+```
+   - ip route show:
+```
+default via 10.0.2.2 dev enp0s3
+10.0.2.0/24 dev enp0s3 proto kernel scope link src 10.0.2.15
+10.0.2.2 dev enp0s3 proto dhcp scope link src 10.0.2.15 metric 100
+192.168.100.0/24 dev enp0s8 proto kernel scope link src 192.168.100.2
+192.168.101.0/24 dev enp0s9 proto kernel scope link src 192.168.101.1
+192.168.102.0/24 via 192.168.100.3 dev enp0s8
+```
   - For Virtual Machine C
     - netplan machine C
 ```
@@ -185,8 +257,7 @@ network:
       addresses:
       - 192.168.102.1/24
 ```
-
-    - ip route show
+  - ip route show
 ```
     default via 192.168.100.1 dev enp0s8
 default via 10.0.2.2 dev enp0s3 proto dhcp src 10.0.2.15 metric 100
