@@ -164,6 +164,35 @@ network:
     enp0s9:
       dhcp4: true  
 ```
+    - ip route show:
+    ```
+    
+    ```
   - For Virtual Machine A
   - For Virtual Machine B
   - For Virtual Machine C
+    - netplan machine C
+```
+      ---
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp0s8:
+      addresses:
+      - 192.168.100.3/24
+    enp0s9:
+      addresses:
+      - 192.168.102.1/24
+```
+
+    - ip route show
+```
+    default via 192.168.100.1 dev enp0s8
+default via 10.0.2.2 dev enp0s3 proto dhcp src 10.0.2.15 metric 100
+10.0.2.0/24 dev enp0s3 proto kernel scope link src 10.0.2.15
+10.0.2.2 dev enp0s3 proto dhcp scope link src 10.0.2.15 metric 100
+192.168.100.0/24 dev enp0s8 proto kernel scope link src 192.168.100.3
+192.168.101.0/24 via 192.168.100.2 dev enp0s8
+192.168.102.0/24 dev enp0s9 proto kernel scope link src 192.168.102.1
+```
